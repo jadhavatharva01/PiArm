@@ -60,6 +60,8 @@ class BlockPerception:
         sorting_stable_time=1.0,
         # sorting vote window
         vote_window=3,
+        palletizing_stable_dist=0.5,
+        palletizing_stable_time=0.5,
     ):
         # External configs / functions from your codebase
         self.color_range = color_range
@@ -83,6 +85,8 @@ class BlockPerception:
         self.stable_time = stable_time
         self.sorting_stable_dist = sorting_stable_dist
         self.sorting_stable_time = sorting_stable_time
+        self.palletizing_stable_dist = palletizing_stable_dist
+        self.palletizing_stable_time = palletizing_stable_time
 
         # Sorting-mode: vote color over N frames to reduce flicker
         self.color_votes = []
@@ -220,8 +224,15 @@ class BlockPerception:
         Mirrors distance+time gating (tracking) and uses sorting thresholds if mode="sorting".
         Returns: (distance, stable_world_xy_or_None, start_pick_up_flag)
         """
-        dist_th = self.sorting_stable_dist if mode == "sorting" else self.stable_dist
-        time_th = self.sorting_stable_time if mode == "sorting" else self.stable_time
+        if mode == "sorting":
+            dist_th = self.sorting_stable_dist
+            time_th = self.sorting_stable_time
+        elif mode == "palletizing":
+            dist_th = self.palletizing_stable_dist
+            time_th = self.palletizing_stable_time
+        else:
+            dist_th = self.stable_dist
+            time_th = self.stable_time
 
         distance = math.sqrt((world_x - self.last_x) ** 2 + (world_y - self.last_y) ** 2)
         self.last_x, self.last_y = world_x, world_y
